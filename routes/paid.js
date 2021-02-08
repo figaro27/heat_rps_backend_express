@@ -5,7 +5,7 @@ var mysql = require('mysql');
 var crypto = require('crypto');
 const heatsdk = require('heat-sdk');
 const HeatConfig = new heatsdk.Configuration({
-  isTestnet: true, 
+  isTestnet: true,
   // baseURL: "http://localhost:7733/api/v1", websocketURL: "ws://localhost:7755/ws/"
 })
 var HeatSDK = new heatsdk.HeatSDK(HeatConfig)
@@ -45,7 +45,6 @@ router.post('/', async function(req, res, next) {
 			return
 		}
 
-
 		if (game.status !== 'CREATED' && game.status !== 'FUNDED') {
 			res.send({
 				status: 'Error',
@@ -55,9 +54,6 @@ router.post('/', async function(req, res, next) {
 		}
 
 		console.log("GAME DATA:", game)
-
-
-		// Read payments to the main account
 
 		var payments
 		try {
@@ -80,14 +76,14 @@ router.post('/', async function(req, res, next) {
 		var filteredPayments = 0
 		var detectedPayment
 		await payments.map(async (payment)=>{
-			
+
 			// Ignore payments not for this account
-			if (payment.recipient !== config.mainAccount) { 
+			if (payment.recipient !== config.mainAccount) {
 				return
 			}
 
 			// Ignore old payments
-			if (payment.timestamp <= now - 600) { 
+			if (payment.timestamp <= now - 600) {
 				// return
 			}
 
@@ -101,7 +97,7 @@ router.post('/', async function(req, res, next) {
 			if (payment.transaction === game.transaction_id1 ||
 				payment.transaction === game.transaction_id2) {
 				console.log("IGNORED: TXID", payment.transaction)
-				return 
+				return
 			}
 
 			// Candidate payment, go for definitive checkings
@@ -123,9 +119,9 @@ router.post('/', async function(req, res, next) {
 			if (payment.messageIsEncrypted) {
 				try {
 					message = await HeatSDK.crypto.decryptMessage(
-						payment.attachment.encryptedMessage.data, 
-						payment.attachment.encryptedMessage.nonce, 
-						payment.senderPublicKey, 
+						payment.attachment.encryptedMessage.data,
+						payment.attachment.encryptedMessage.nonce,
+						payment.senderPublicKey,
 						config.secret
 					);
 				} catch (e) {
@@ -134,9 +130,10 @@ router.post('/', async function(req, res, next) {
 			}
 
 			console.log("MESSAGE:", message)
+			console.log('Game_message:', game.message + '-' + game.id)
 
 			// 1b. Check id (last checking)
-			if (parseInt(message) === parseInt(game.id)) {
+			if (message === game.message + '-' + game.id) {
 				console.log("DETECTED:", payment)
 				console.log("From:", payment.senderPublicName || payment.sender)
 				console.log("Amount:", parseInt(payment.amount) / 100000000)
@@ -156,13 +153,11 @@ router.post('/', async function(req, res, next) {
 			return
 		}
 
-
 		// Create new game data
 
 		const quantity = parseInt(detectedPayment.amount) / 1000000000
 
 		console.log("Q:", quantity)
-
 
 		const account_id = detectedPayment.sender
 		const account_name = detectedPayment.senderPublicName
@@ -185,14 +180,14 @@ router.post('/', async function(req, res, next) {
 		if (!game.transaction_id1 && game.status === 'CREATED') {
 
 			console.log("CREATED:")
-			query = `update games set 
-					account_id1 = ?, 
+			query = `update games set
+					account_id1 = ?,
 					account_name1 = ?,
-					rounds = ?, 
-					amount = ?, 
-					status = ?, 
-					transaction_id1 = ?, 
-					hash1 = ?, 
+					rounds = ?,
+					amount = ?,
+					status = ?,
+					transaction_id1 = ?,
+					hash1 = ?,
 					created_at = UTC_TIMESTAMP(),
 					funded_at = UTC_TIMESTAMP()
 				where id = ?`
@@ -216,12 +211,12 @@ router.post('/', async function(req, res, next) {
 		if (game.transaction_id1 && game.status === 'FUNDED') {
 
 			console.log("FUNDED:")
-			query = `update games set 
-					account_id2 = ?, 
+			query = `update games set
+					account_id2 = ?,
 					account_name2 = ?,
-					status = ?, 
-					transaction_id2 = ?, 
-					hash2 = ?, 
+					status = ?,
+					transaction_id2 = ?,
+					hash2 = ?,
 					started_at = UTC_TIMESTAMP()
 				where id = ?`
 
@@ -245,7 +240,7 @@ router.post('/', async function(req, res, next) {
 
 			conn.query(
 				query,
-				queryParams, 
+				queryParams,
 				async function(error, results, fields) {
 					if (error) {
 						res.send({error: error})
@@ -267,7 +262,7 @@ router.post('/', async function(req, res, next) {
 		      	player: thisPlayer,
 		      	account_id: detectedPayment.sender,
 		      	account_name: detectedPayment.senderPublicName,
-		      	opponent_id: game.account_id1, // It only occurs when player is 2 (if player is 1 the value is null) 
+		      	opponent_id: game.account_id1, // It only occurs when player is 2 (if player is 1 the value is null)
 		      	opponent_name: game.account_name1,
 		      	password: password,
 		      }

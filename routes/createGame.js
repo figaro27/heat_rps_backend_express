@@ -26,9 +26,16 @@ router.post('/', function(req, res, next) {
 
 	const game_pin = uuidv4()
 
+	let message = ''
+	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	for ( var i = 0; i < 5; i++ ) {
+		message += characters.charAt(Math.floor(Math.random() * characters.length));
+	}
+
 	conn.query(
-		'insert into games (game_pin, rounds, amount, private, status, created_at) values (?, ?, ?, ?, ?, UTC_TIMESTAMP())', [
+		'insert into games (game_pin, message, rounds, amount, private, status, created_at) values (?, ?, ?, ?, ?, ?, UTC_TIMESTAMP())', [
 			game_pin,
+			message,
 			params.rounds,
 			params.amount,
 			params.private,
@@ -40,18 +47,14 @@ router.post('/', function(req, res, next) {
 			return
 		}
 
+		message += '-' + results.insertId
 		const response = {
 			game_id: results.insertId,
 			game_pin,
+			message
 		}
-
 	  res.send(response);
 	})
-
-
-
 });
-
-
 
 module.exports = router;

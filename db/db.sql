@@ -15,18 +15,28 @@
 DROP TABLE IF EXISTS `games`;
 CREATE TABLE IF NOT EXISTS `games` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `account_id` varchar(20) DEFAULT NULL,
+  `game_pin` varchar(36) NOT NULL DEFAULT '0',
+  `message` varchar(26) NOT NULL,
   `amount` bigint(20) DEFAULT NULL,
   `rounds` smallint(6) DEFAULT NULL,
-  `opponent` varchar(20) DEFAULT NULL,
-  `state` varchar(20) DEFAULT NULL,
   `winner` smallint(6) DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL,
+  `account_id1` varchar(20) DEFAULT NULL,
+  `account_name1` varchar(50) DEFAULT NULL,
+  `account_id2` varchar(20) DEFAULT NULL,
+  `account_name2` varchar(50) DEFAULT NULL,
+  `hash1` varchar(64) DEFAULT NULL,
+  `hash2` varchar(64) DEFAULT NULL,
+  `transaction_id1` varchar(64) DEFAULT NULL,
+  `transaction_id2` varchar(64) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
+  `funded_at` timestamp NULL DEFAULT NULL,
   `started_at` timestamp NULL DEFAULT NULL,
   `ended_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `private` int(1) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8;
 
 -- La exportación de datos fue deseleccionada.
 -- Volcando estructura para tabla heat-rps.moves
@@ -43,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `moves` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `game_id` (`game_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=356 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=623 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 -- La exportación de datos fue deseleccionada.
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

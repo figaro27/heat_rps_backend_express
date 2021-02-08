@@ -20,16 +20,18 @@ router.post('/', function(req, res, next) {
 	if (!params.filter ||  params.filter === 'awaiting') where = 'status = "FUNDED"'
 	if (params.filter === 'started') where = 'status = "STARTED"'
 	if (params.filter === 'all') where = 'status = "FUNDED" OR status = "STARTED" OR status = "FINISHED"'
-		
+
 	conn.query(`
-		select * from games 
-		where ${where}`, 
-		function(error, results, fields) 
+		select * from games
+		where ${where}`,
+		function(error, results, fields)
 	{
 		if (error) {
 			res.send({error: error})
 			return
 		}
+
+		results.forEach(item => { item.message = item.message + '-' + item.id })
 
 		res.send(results);
 	})
